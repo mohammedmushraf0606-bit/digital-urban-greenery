@@ -1,0 +1,24 @@
+{
+  "name": "digital-urban-greenery-management-system",
+  "version": "1.0.0",
+  "description": "Full-stack MERN Web Application for Urban Greenery, Tree Inventory, Park Management, and Environmental Performance Monitoring",
+  "scripts": {
+    "server": "npm --prefix server start",
+    "server:dev": "npm --prefix server run dev",
+    "client": "npm --prefix client dev",
+    "client:build": "npm --prefix client run build",
+    "seed": "npm --prefix server run seed"
+  },
+  "keywords": [
+    "mern",
+    "react",
+    "nodejs",
+    "express",
+    "mongodb",
+    "urban-greenery",
+    "smart-city",
+    "environmental-monitoring"
+  ],
+  "author": "Urban Greenery Management Team",
+  "license": "MIT"
+}
