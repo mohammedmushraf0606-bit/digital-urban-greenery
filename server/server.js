@@ -31,8 +31,16 @@ app.use((req, res, next) => {
   next();
 });
 
+// Serverless URL normalization: ensures routes match consistently
+app.use((req, res, next) => {
+  if (!req.url.startsWith('/api') && req.url !== '/') {
+    req.url = '/api' + req.url;
+  }
+  next();
+});
+
 // Root / Health check
-app.get('/', (req, res) => {
+app.get(['/', '/api'], (req, res) => {
   res.json({
     message: '🌿 Digital Urban Greenery Management System API',
     status: 'ONLINE',
@@ -52,7 +60,7 @@ app.get('/', (req, res) => {
   });
 });
 
-app.get('/api/health', (req, res) => {
+app.get(['/health', '/api/health'], (req, res) => {
   res.json({
     status: 'UP',
     uptime: process.uptime(),

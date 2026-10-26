@@ -27,11 +27,22 @@ const modelMapping = {
 };
 
 const connectDB = async () => {
-  const mongoURI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/urban_greenery';
+  if (isConnected && mongoose.connection.readyState === 1) {
+    return;
+  }
+
+  const mongoURI = process.env.MONGODB_URI;
+
+  if (!mongoURI) {
+    isConnected = false;
+    console.log('💡 [Zero-Config Mode]: No MONGODB_URI configured. Using high-performance Embedded Memory Storage Engine.');
+    await embeddedStore.init();
+    return;
+  }
 
   try {
     const conn = await mongoose.connect(mongoURI, {
-      serverSelectionTimeoutMS: 2500
+      serverSelectionTimeoutMS: 3000
     });
     isConnected = true;
     console.log(`🌿 [MongoDB Connected]: ${conn.connection.host}/${conn.connection.name}`);
