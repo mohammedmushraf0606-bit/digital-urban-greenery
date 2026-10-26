@@ -93,6 +93,14 @@ const startServer = async () => {
   });
 };
 
-startServer();
+if (require.main === module) {
+  const PORT = process.env.PORT || 5000;
 
-module.exports = app;
+  connectDB().then(() => {
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  });
+}
+
+module.exports = { app, connectDB };
