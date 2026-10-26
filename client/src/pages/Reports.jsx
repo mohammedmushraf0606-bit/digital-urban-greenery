@@ -1,0 +1,444 @@
+import React, { useState, useEffect } from 'react';
+import {
+  FileBarChart2,
+  Download,
+  Printer,
+  Calendar,
+  Filter,
+  CheckCircle,
+  TrendingUp,
+  Trash2,
+  Eye,
+  Plus
+} from 'lucide-react';
+import { reportsAPI } from '../services/api';
+import Modal from '../components/Modal';
+import Toast from '../components/Toast';
+import StatCard from '../components/StatCard';
+
+const reportTypes = [
+  'Comprehensive Executive Summary',
+  'Tree Census & Health',
+  'Green Coverage & AQI',
+  'Maintenance & Budgeting',
+  'Urban Forest Analytics'
+];
+
+const Reports = () => {
+  const [reports, setReports] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [generating, setGenerating] = useState(false);
+  const [activeReport, setActiveReport] = useState(null);
+
+  // Filter params for generation
+  const [genParams, setGenParams] = useState({
+    reportTitle: '',
+    reportType: 'Comprehensive Executive Summary',
+    category: 'All',
+    location: 'City-Wide',
+    summaryNotes: ''
+  });
+
+  const [isGenerateOpen, setIsGenerateOpen] = useState(false);
+  const [toast, setToast] = useState({ message: '', type: 'success' });
+
+  useEffect(() => {
+    fetchReports();
+  }, []);
+
+  const fetchReports = async () => {
+    try {
+      setLoading(true);
+      const res = await reportsAPI.getAll();
+      setReports(res.data.data);
+      if (res.data.data.length > 0 && !activeReport) {
+        setActiveReport(res.data.data[0]);
+      }
+      setLoading(false);
+    } catch (err) {
+      console.error('Error fetching reports:', err);
+      setToast({ message: 'Failed to fetch reports', type: 'error' });
+      setLoading(false);
+    }
+  };
+
+  const handleGenerate = async (e) => {
+    e.preventDefault();
+    setGenerating(true);
+    try {
+      const res = await reportsAPI.generate(genParams);
+      setToast({ message: 'Audit Report generated successfully!', type: 'success' });
+      setIsGenerateOpen(false);
+      setActiveReport(res.data.data);
+      fetchReports();
+    } catch (err) {
+      console.error('Error generating report:', err);
+      setToast({ message: 'Failed to generate report', type: 'error' });
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  const handleDeleteReport = async (id) => {
+    if (!window.confirm('Delete this report snapshot?')) return;
+    try {
+      await reportsAPI.delete(id);
+      setToast({ message: 'Report snapshot deleted.', type: 'success' });
+      if (activeReport && activeReport._id === id) {
+        setActiveReport(null);
+      }
+      fetchReports();
+    } catch (err) {
+      console.error('Error deleting report:', err);
+      setToast({ message: 'Failed to delete report', type: 'error' });
+    }
+  };
+
+  const handlePrint = () => {
+    window.print();
+  };
+
+  return (
+    <div>
+      {toast.message && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast({ message: '', type: 'success' })}
+        />
+      )}
+
+      {/* Header */}
+      <div className="page-header">
+        <div>
+          <h2>Urban Greenery Reports & Analytics</h2>
+          <p className="page-desc">
+            Generate printable audit snapshots, municipal canopy accounts, and environmental compliance documentation.
+          </p>
+        </div>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <button className="btn btn-secondary" onClick={handlePrint} disabled={!activeReport}>
+            <Printer size={18} /> Print / Export PDF
+          </button>
+          <button className="btn btn-primary" onClick={() => setIsGenerateOpen(true)}>
+            <Plus size={18} /> Generate New Report
+          </button>
+        </div>
+      </div>
+
+      {/* Main Layout: Left Report Viewer, Right Report History */}
+      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
+        {/* Active Report Viewer */}
+        <div>
+          {activeReport ? (
+            <div
+              className="card"
+              style={{
+                background: '#ffffff',
+                border: '1px solid #cbd5e1',
+                borderRadius: '16px',
+                padding: '32px'
+              }}
+            >
+              <div
+                style={{
+                  borderBottom: '2px solid #059669',
+                  paddingBottom: '20px',
+                  marginBottom: '24px',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'flex-start'
+                }}
+              >
+                <div>
+                  <span className="badge badge-success" style={{ marginBottom: '8px' }}>
+                    {activeReport.reportType}
+                  </span>
+                  <h2 style={{ fontSize: '1.6rem', color: '#0f172a' }}>{activeReport.reportTitle}</h2>
+                  <div style={{ fontSize: '0.88rem', color: '#64748b', marginTop: '6px' }}>
+                    Generated by: <strong style={{ color: '#334155' }}>{activeReport.generatedBy}</strong> on{' '}
+                    {new Date(activeReport.createdAt).toLocaleDateString('en-US', {
+                      month: 'long',
+                      day: 'numeric',
+                      year: 'numeric'
+                    })}
+                  </div>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: '#94a3b8', fontWeight: 700 }}>
+                    Municipal Smart City Audit
+                  </div>
+                  <div style={{ fontWeight: 700, color: '#059669', fontSize: '1.1rem' }}>
+                    ISO 14001 Compliant
+                  </div>
+                </div>
+              </div>
+
+              {/* Report Summary Cards */}
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(3, 1fr)',
+                  gap: '16px',
+                  marginBottom: '24px'
+                }}
+              >
+                <div style={{ background: '#f8fafc', padding: '16px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                  <div style={{ fontSize: '0.78rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 600 }}>
+                    Total Parks
+                  </div>
+                  <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#0f172a' }}>
+                    {activeReport.metrics.totalParks}
+                  </div>
+                  <div style={{ fontSize: '0.75rem', color: '#16a34a' }}>Registered Public Zones</div>
+                </div>
+
+                <div style={{ background: '#f8fafc', padding: '16px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                  <div style={{ fontSize: '0.78rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 600 }}>
+                    Census Trees
+                  </div>
+                  <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#059669' }}>
+                    {activeReport.metrics.totalTrees}
+                  </div>
+                  <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
+                    {activeReport.metrics.healthyTreesCount} Classified Healthy
+                  </div>
+                </div>
+
+                <div style={{ background: '#f8fafc', padding: '16px', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                  <div style={{ fontSize: '0.78rem', color: '#64748b', textTransform: 'uppercase', fontWeight: 600 }}>
+                    Forest Reserves
+                  </div>
+                  <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#0f172a' }}>
+                    {activeReport.metrics.totalForestHectares} Ha
+                  </div>
+                  <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
+                    {activeReport.metrics.totalGreenBeltKm} Km Green Belts
+                  </div>
+                </div>
+              </div>
+
+              {/* Environmental Metrics in Report */}
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(2, 1fr)',
+                  gap: '16px',
+                  marginBottom: '24px'
+                }}
+              >
+                <div style={{ background: '#ecfdf5', padding: '16px', borderRadius: '12px', border: '1px solid #a7f3d0' }}>
+                  <div style={{ fontSize: '0.8rem', color: '#065f46', fontWeight: 700 }}>
+                    ESTIMATED ANNUAL CARBON ABSORPTION
+                  </div>
+                  <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#047857' }}>
+                    {activeReport.metrics.totalCarbonAbsorptionTonnes?.toLocaleString() || 1524} Tonnes CO₂
+                  </div>
+                  <p style={{ fontSize: '0.82rem', color: '#065f46', marginTop: '4px' }}>
+                    Capturing ambient vehicle emissions across industrial corridors and ring expressways.
+                  </p>
+                </div>
+
+                <div style={{ background: '#eff6ff', padding: '16px', borderRadius: '12px', border: '1px solid #bfdbfe' }}>
+                  <div style={{ fontSize: '0.8rem', color: '#1e40af', fontWeight: 700 }}>
+                    CITY AVERAGE AIR QUALITY INDEX
+                  </div>
+                  <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#1d4ed8' }}>
+                    AQI {activeReport.metrics.avgAqi || 98}
+                  </div>
+                  <p style={{ fontSize: '0.82rem', color: '#1e40af', marginTop: '4px' }}>
+                    Continuous particulate matter PM2.5 monitoring at active municipal observation hubs.
+                  </p>
+                </div>
+              </div>
+
+              {/* Executive Summary Narrative */}
+              <div>
+                <h4 style={{ fontSize: '1.1rem', marginBottom: '8px', color: '#0f172a' }}>
+                  Executive Analysis & Botanical Findings
+                </h4>
+                <p style={{ color: '#475569', lineHeight: 1.6, fontSize: '0.95rem' }}>
+                  {activeReport.summaryNotes}
+                </p>
+              </div>
+
+              {/* Signoff block */}
+              <div
+                style={{
+                  marginTop: '40px',
+                  paddingTop: '20px',
+                  borderTop: '1px dashed #cbd5e1',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center'
+                }}
+              >
+                <div>
+                  <div style={{ fontWeight: 600, fontSize: '0.88rem' }}>Verified By</div>
+                  <div style={{ fontSize: '0.8rem', color: '#64748b' }}>Horticultural Assessment Directorate</div>
+                </div>
+                <div>
+                  <div style={{ fontWeight: 600, fontSize: '0.88rem' }}>Digital Seal</div>
+                  <div style={{ fontSize: '0.8rem', color: '#059669', fontWeight: 600 }}>AUTHENTICATED RECORD</div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="card" style={{ textAlign: 'center', padding: '60px 20px', color: '#94a3b8' }}>
+              Select a report from the right panel or generate a new audit snapshot.
+            </div>
+          )}
+        </div>
+
+        {/* Right Sidebar: Historical Reports Archive */}
+        <div>
+          <div className="card">
+            <div className="card-header">
+              <h3 className="card-title">Audit Archive</h3>
+              <span className="badge badge-secondary">{reports.length} Reports</span>
+            </div>
+
+            {loading ? (
+              <p style={{ color: '#64748b', fontSize: '0.9rem' }}>Loading archive...</p>
+            ) : reports.length === 0 ? (
+              <p style={{ color: '#94a3b8', fontSize: '0.85rem' }}>No generated reports yet.</p>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {reports.map((r) => {
+                  const isSelected = activeReport && activeReport._id === r._id;
+                  return (
+                    <div
+                      key={r._id}
+                      onClick={() => setActiveReport(r)}
+                      style={{
+                        padding: '14px',
+                        borderRadius: '10px',
+                        border: `1px solid ${isSelected ? '#059669' : '#e2e8f0'}`,
+                        backgroundColor: isSelected ? '#f0fdf4' : '#ffffff',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease'
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        <span className="badge badge-info" style={{ fontSize: '0.7rem' }}>
+                          {r.reportType.substring(0, 20)}...
+                        </span>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteReport(r._id);
+                          }}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            cursor: 'pointer',
+                            color: '#94a3b8'
+                          }}
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                      <div
+                        style={{
+                          fontWeight: 600,
+                          fontSize: '0.9rem',
+                          color: '#0f172a',
+                          marginTop: '6px'
+                        }}
+                      >
+                        {r.reportTitle}
+                      </div>
+                      <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '4px' }}>
+                        {new Date(r.createdAt).toLocaleDateString()}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Generate Report Modal */}
+      <Modal
+        isOpen={isGenerateOpen}
+        onClose={() => setIsGenerateOpen(false)}
+        title="Generate Urban Greenery Audit Snapshot"
+      >
+        <form onSubmit={handleGenerate}>
+          <div className="modal-body">
+            <div className="form-grid">
+              <div className="form-group full-width">
+                <label className="form-label">Report Document Title *</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="e.g. Q4 City Canopy & Carbon Absorption Audit"
+                  value={genParams.reportTitle}
+                  onChange={(e) => setGenParams({ ...genParams, reportTitle: e.target.value })}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Report Classification</label>
+                <select
+                  className="form-control"
+                  value={genParams.reportType}
+                  onChange={(e) => setGenParams({ ...genParams, reportType: e.target.value })}
+                >
+                  {reportTypes.map((t) => (
+                    <option key={t} value={t}>
+                      {t}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Zone Scope</label>
+                <select
+                  className="form-control"
+                  value={genParams.location}
+                  onChange={(e) => setGenParams({ ...genParams, location: e.target.value })}
+                >
+                  <option value="City-Wide">City-Wide All Zones</option>
+                  <option value="North Zone">North Zone</option>
+                  <option value="South Zone">South Zone</option>
+                  <option value="East Zone">East Zone</option>
+                  <option value="West Zone">West Zone</option>
+                </select>
+              </div>
+
+              <div className="form-group full-width">
+                <label className="form-label">Executive Analysis Notes (Optional)</label>
+                <textarea
+                  className="form-control"
+                  rows={3}
+                  placeholder="Leave empty for automated system intelligence calculation."
+                  value={genParams.summaryNotes}
+                  onChange={(e) => setGenParams({ ...genParams, summaryNotes: e.target.value })}
+                />
+              </div>
+            </div>
+          </div>
+          <div className="modal-footer">
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={() => setIsGenerateOpen(false)}
+            >
+              Cancel
+            </button>
+            <button type="submit" className="btn btn-primary" disabled={generating}>
+              {generating ? 'Calculating Metrics...' : 'Generate Live Audit'}
+            </button>
+          </div>
+        </form>
+      </Modal>
+    </div>
+  );
+};
+
+export default Reports;

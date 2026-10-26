@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Digital Urban Greenery Management System</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome 6 -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="app-wrapper">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <a href="index.html" class="sidebar-brand">
+                <i class="fa-solid fa-tree"></i>
+                <span>UrbanGreenery</span>
+            </a>
+        </div>
+
+        <ul class="sidebar-menu">
+            <li class="menu-heading">Main Overview</li>
+            <li class="nav-item">
+                <a href="index.html" class="nav-link active">
+                    <i class="fa-solid fa-gauge-high"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+
+            <li class="menu-heading">Green Assets</li>
+            <li class="nav-item">
+                <a href="parks.html" class="nav-link">
+                    <i class="fa-solid fa-tree-city"></i>
+                    <span>Park Management</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="trees.html" class="nav-link">
+                    <i class="fa-solid fa-seedling"></i>
+                    <span>Tree Inventory</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="urban-forests.html" class="nav-link">
+                    <i class="fa-solid fa-mountain-sun"></i>
+                    <span>Urban Forests</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="green-belts.html" class="nav-link">
+                    <i class="fa-solid fa-road"></i>
+                    <span>Green Belts</span>
+                </a>
+            </li>
+
+            <li class="menu-heading">Eco & Operations</li>
+            <li class="nav-item">
+                <a href="environmental.html" class="nav-link">
+                    <i class="fa-solid fa-wind"></i>
+                    <span>Environmental Data</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="maintenance.html" class="nav-link">
+                    <i class="fa-solid fa-screwdriver-wrench"></i>
+                    <span>Maintenance Tasks</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="reports.html" class="nav-link">
+                    <i class="fa-solid fa-chart-pie"></i>
+                    <span>Reports & Analytics</span>
+                </a>
+            </li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <button class="btn btn-sm btn-outline-light w-100 d-flex align-items-center justify-content-center gap-2" onclick="handleLogout()">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                <span>Sign Out</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="main-content">
+        <!-- Topbar -->
+        <header class="topbar">
+            <div class="d-flex align-items-center">
+                <button class="mobile-toggle" id="mobileSidebarToggle" title="Toggle Menu">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <div class="topbar-search">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="globalSearchInput" placeholder="Search parks, trees, forests, green belts..." autocomplete="off">
+                    <div id="globalSearchResults" class="dropdown-menu shadow w-100" style="display: none; position: absolute; top: 100%; left: 0;"></div>
+                </div>
+            </div>
+
+            <div class="topbar-right">
+                <div class="system-status-badge d-none d-md-flex">
+                    <span class="status-dot-pulse"></span>
+                    <span>System Live</span>
+                </div>
+
+                <div class="user-profile-menu">
+                    <div class="user-avatar" id="topbarUserAvatar">AD</div>
+                    <div class="user-info d-none d-sm-block">
+                        <div class="user-name" id="topbarUserName">Administrator</div>
+                        <div class="user-role" id="topbarUserRole">Admin</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Page Body -->
+        <main class="page-container">
+            <div class="page-header">
+                <div>
+                    <h2 class="page-title">
+                        <i class="fa-solid fa-gauge-high"></i>
+                        <span>Urban Greenery Central Dashboard</span>
+                    </h2>
+                    <p class="page-subtitle">Real-time digital monitoring of municipal parks, tree inventories, and environmental health.</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="parks.html" class="btn btn-outline-green btn-sm">
+                        <i class="fa-solid fa-plus me-1"></i>New Park
+                    </a>
+                    <a href="trees.html" class="btn btn-primary-green btn-sm">
+                        <i class="fa-solid fa-tree me-1"></i>Register Tree
+                    </a>
+                </div>
+            </div>
+
+            <!-- Metric Stat Cards -->
+            <div class="row g-3 mb-4">
+                <div class="col-xl-3 col-md-6">
+                    <div class="stat-card">
+                        <div>
+                            <div class="stat-label">Total Urban Parks</div>
+                            <div class="stat-value" id="statTotalParks">--</div>
+                            <div class="stat-desc positive">
+                                <i class="fa-solid fa-arrow-trend-up"></i>
+                                <span>6 Active Wards</span>
+                            </div>
+                        </div>
+                        <div class="stat-icon green">
+                            <i class="fa-solid fa-tree-city"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6">
+                    <div class="stat-card tree">
+                        <div>
+                            <div class="stat-label">Total Trees Protected</div>
+                            <div class="stat-value" id="statTotalTrees">--</div>
+                            <div class="stat-desc positive">
+                                <i class="fa-solid fa-leaf"></i>
+                                <span>Inventory & Miyawaki</span>
+                            </div>
+                        </div>
+                        <div class="stat-icon emerald">
+                            <i class="fa-solid fa-seedling"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6">
+                    <div class="stat-card forest">
+                        <div>
+                            <div class="stat-label">Total Green Area</div>
+                            <div class="stat-value" id="statGreenArea">-- ha</div>
+                            <div class="stat-desc">
+                                <span id="statUrbanForests">0</span> Forests &bull; <span id="statGreenBelts">0</span> Belts
+                            </div>
+                        </div>
+                        <div class="stat-icon purple">
+                            <i class="fa-solid fa-mountain-sun"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6">
+                    <div class="stat-card carbon">
+                        <div>
+                            <div class="stat-label">Carbon Offset Est.</div>
+                            <div class="stat-value" id="statCarbonOffset">-- t</div>
+                            <div class="stat-desc positive">
+                                <i class="fa-solid fa-cloud-arrow-down"></i>
+                                <span>Metric tonnes CO2/yr</span>
+                            </div>
+                        </div>
+                        <div class="stat-icon blue">
+                            <i class="fa-solid fa-smog"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Environmental Quick Indicators -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-6 col-lg-3">
+                    <div class="card-custom mb-0 p-3 d-flex align-items-center gap-3">
+                        <div class="stat-icon amber rounded-circle" style="width: 44px; height: 44px; font-size: 1.15rem;">
+                            <i class="fa-solid fa-wind"></i>
+                        </div>
+                        <div>
+                            <div class="text-muted small fw-semibold">City AQI (Air Quality)</div>
+                            <div class="fs-4 fw-bold text-dark" id="statLatestAqi">--</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="card-custom mb-0 p-3 d-flex align-items-center gap-3">
+                        <div class="stat-icon green rounded-circle" style="width: 44px; height: 44px; font-size: 1.15rem;">
+                            <i class="fa-solid fa-shield-halved"></i>
+                        </div>
+                        <div>
+                            <div class="text-muted small fw-semibold">Environmental Score</div>
+                            <div class="fs-4 fw-bold text-success" id="statEcoScore">--/100</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="card-custom mb-0 p-3 d-flex align-items-center gap-3">
+                        <div class="stat-icon blue rounded-circle" style="width: 44px; height: 44px; font-size: 1.15rem;">
+                            <i class="fa-solid fa-heart-pulse"></i>
+                        </div>
+                        <div>
+                            <div class="text-muted small fw-semibold">Tree Survival Rate</div>
+                            <div class="fs-4 fw-bold text-primary">91.8%</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="card-custom mb-0 p-3 d-flex align-items-center gap-3">
+                        <div class="stat-icon emerald rounded-circle" style="width: 44px; height: 44px; font-size: 1.15rem;">
+                            <i class="fa-solid fa-droplet"></i>
+                        </div>
+                        <div>
+                            <div class="text-muted small fw-semibold">Drip Water Efficiency</div>
+                            <div class="fs-4 fw-bold text-success">94.2%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visualization Charts Row 1 -->
+            <div class="row g-3 mb-4">
+                <div class="col-lg-8">
+                    <div class="card-custom h-100">
+                        <div class="card-header-custom">
+                            <h3 class="card-title-custom">
+                                <i class="fa-solid fa-chart-column text-success"></i>
+                                <span>Tree Inventory by Species</span>
+                            </h3>
+                            <a href="trees.html" class="btn btn-sm btn-link text-success text-decoration-none">View All Trees &rarr;</a>
+                        </div>
+                        <div class="card-body-custom" style="height: 320px; position: relative;">
+                            <canvas id="speciesChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <div class="card-custom h-100">
+                        <div class="card-header-custom">
+                            <h3 class="card-title-custom">
+                                <i class="fa-solid fa-chart-pie text-success"></i>
+                                <span>Tree Health Condition</span>
+                            </h3>
+                            <span class="badge bg-light text-muted border">Live Status</span>
+                        </div>
+                        <div class="card-body-custom" style="height: 320px; position: relative;">
+                            <canvas id="healthChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visualization Charts Row 2 -->
+            <div class="row g-3 mb-4">
+                <div class="col-lg-8">
+                    <div class="card-custom h-100">
+                        <div class="card-header-custom">
+                            <h3 class="card-title-custom">
+                                <i class="fa-solid fa-chart-line text-success"></i>
+                                <span>Environmental Performance Trends (AQI vs Eco Score)</span>
+                            </h3>
+                            <a href="environmental.html" class="btn btn-sm btn-link text-success text-decoration-none">Historical Data &rarr;</a>
+                        </div>
+                        <div class="card-body-custom" style="height: 300px; position: relative;">
+                            <canvas id="envTrendChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <div class="card-custom h-100">
+                        <div class="card-header-custom">
+                            <h3 class="card-title-custom">
+                                <i class="fa-solid fa-shapes text-success"></i>
+                                <span>Parks by Typology</span>
+                            </h3>
+                        </div>
+                        <div class="card-body-custom" style="height: 300px; position: relative;">
+                            <canvas id="parksTypeChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Row: Recent Activities & Trees -->
+            <div class="row g-3">
+                <div class="col-lg-6">
+                    <div class="card-custom">
+                        <div class="card-header-custom">
+                            <h3 class="card-title-custom">
+                                <i class="fa-solid fa-list-check text-success"></i>
+                                <span>Recent Maintenance Tasks</span>
+                            </h3>
+                            <a href="maintenance.html" class="btn btn-sm btn-outline-green">Manage Tasks</a>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table-custom">
+                                <thead>
+                                    <tr>
+                                        <th>Task & Target</th>
+                                        <th>Type</th>
+                                        <th>Status</th>
+                                        <th class="text-end">Scheduled Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recentMaintenanceTableBody">
+                                    <tr>
+                                        <td colspan="4" class="text-center py-3 text-muted">Loading activities...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="card-custom">
+                        <div class="card-header-custom">
+                            <h3 class="card-title-custom">
+                                <i class="fa-solid fa-tree text-success"></i>
+                                <span>Recently Registered Trees</span>
+                            </h3>
+                            <a href="trees.html" class="btn btn-sm btn-outline-green">Inventory List</a>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table-custom">
+                                <thead>
+                                    <tr>
+                                        <th>Tree Code</th>
+                                        <th>Species</th>
+                                        <th>Health</th>
+                                        <th>Location</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recentTreesTableBody">
+                                    <tr>
+                                        <td colspan="4" class="text-center py-3 text-muted">Loading trees...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Bootstrap 5 JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Project JS Modules -->
+<script src="js/api.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/dashboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,145 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Digital Urban Greenery Management System - MongoDB Collection Schemas",
+  "collections": {
+    "users": {
+      "type": "object",
+      "required": ["name", "email", "password", "role"],
+      "properties": {
+        "_id": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "password": { "type": "string", "description": "Bcrypt hashed password" },
+        "role": { "type": "string", "enum": ["Admin", "Forest Officer", "Urban Planner", "Field Inspector"] },
+        "department": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "parks": {
+      "type": "object",
+      "required": ["name", "location", "areaSqM"],
+      "properties": {
+        "_id": { "type": "string" },
+        "name": { "type": "string" },
+        "location": { "type": "string" },
+        "wardNo": { "type": "string" },
+        "areaSqM": { "type": "number" },
+        "parkType": { "type": "string", "enum": ["Public Park", "Botanical Garden", "Children Park", "Ecological Park", "Neighborhood Park", "Heritage Garden"] },
+        "establishedYear": { "type": "number" },
+        "contactOfficer": { "type": "string" },
+        "contactPhone": { "type": "string" },
+        "facilities": { "type": "array", "items": { "type": "string" } },
+        "status": { "type": "string", "enum": ["Active", "Under Renovation", "Planned", "Temporarily Closed"] },
+        "maintenanceStatus": { "type": "string", "enum": ["Excellent", "Good", "Fair", "Needs Maintenance"] },
+        "treeCount": { "type": "number" },
+        "imageUrl": { "type": "string" }
+      }
+    },
+    "trees": {
+      "type": "object",
+      "required": ["treeCode", "species", "location"],
+      "properties": {
+        "_id": { "type": "string" },
+        "treeCode": { "type": "string" },
+        "species": { "type": "string" },
+        "scientificName": { "type": "string" },
+        "location": { "type": "string" },
+        "park": { "type": "string", "description": "ObjectId ref to parks" },
+        "parkName": { "type": "string" },
+        "ageYears": { "type": "number" },
+        "heightMeters": { "type": "number" },
+        "canopyDiameterMeters": { "type": "number" },
+        "healthStatus": { "type": "string", "enum": ["Healthy", "Needs Care", "Diseased", "Critical"] },
+        "maintenanceStatus": { "type": "string", "enum": ["Regular", "Scheduled", "Urgent", "Under Treatment"] },
+        "plantedDate": { "type": "string", "format": "date-time" },
+        "carbonAbsorptionKgPerYear": { "type": "number" },
+        "notes": { "type": "string" }
+      }
+    },
+    "urban_forests": {
+      "type": "object",
+      "required": ["forestName", "location", "areaHectares"],
+      "properties": {
+        "_id": { "type": "string" },
+        "forestName": { "type": "string" },
+        "location": { "type": "string" },
+        "areaHectares": { "type": "number" },
+        "treeCount": { "type": "number" },
+        "canopyCoverPercentage": { "type": "number" },
+        "biodiversityIndex": { "type": "number" },
+        "establishedYear": { "type": "number" },
+        "supervisor": { "type": "string" },
+        "status": { "type": "string", "enum": ["Protected Reserve", "Developing Woodland", "Restoration Area", "Miyawaki Forest"] },
+        "maintenanceStatus": { "type": "string" },
+        "dominantFlora": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "green_belts": {
+      "type": "object",
+      "required": ["beltName", "location", "lengthKm", "widthMeters"],
+      "properties": {
+        "_id": { "type": "string" },
+        "beltName": { "type": "string" },
+        "location": { "type": "string" },
+        "lengthKm": { "type": "number" },
+        "widthMeters": { "type": "number" },
+        "areaSqM": { "type": "number" },
+        "vegetationType": { "type": "string" },
+        "status": { "type": "string" },
+        "maintenanceInfo": { "type": "string" },
+        "soilType": { "type": "string" },
+        "irrigationType": { "type": "string" }
+      }
+    },
+    "environmental_indicators": {
+      "type": "object",
+      "required": ["zoneLocation", "aqi", "greenCoveragePercentage"],
+      "properties": {
+        "_id": { "type": "string" },
+        "recordDate": { "type": "string", "format": "date-time" },
+        "zoneLocation": { "type": "string" },
+        "aqi": { "type": "number" },
+        "pm25": { "type": "number" },
+        "pm10": { "type": "number" },
+        "greenCoveragePercentage": { "type": "number" },
+        "carbonAbsorptionTonnesYear": { "type": "number" },
+        "treeSurvivalRate": { "type": "number" },
+        "waterUsageKLMonth": { "type": "number" },
+        "environmentalScore": { "type": "number" },
+        "recordedBy": { "type": "string" },
+        "remarks": { "type": "string" }
+      }
+    },
+    "maintenance": {
+      "type": "object",
+      "required": ["targetType", "targetName", "activityType", "responsibleTeam"],
+      "properties": {
+        "_id": { "type": "string" },
+        "targetType": { "type": "string", "enum": ["Park", "Tree", "Urban Forest", "Green Belt", "General Facility"] },
+        "targetName": { "type": "string" },
+        "activityType": { "type": "string" },
+        "scheduledDate": { "type": "string", "format": "date-time" },
+        "completedDate": { "type": "string", "format": "date-time" },
+        "responsibleTeam": { "type": "string" },
+        "priority": { "type": "string", "enum": ["Low", "Medium", "High", "Urgent"] },
+        "cost": { "type": "number" },
+        "status": { "type": "string", "enum": ["Scheduled", "In Progress", "Completed", "Cancelled"] },
+        "remarks": { "type": "string" }
+      }
+    },
+    "reports": {
+      "type": "object",
+      "required": ["reportTitle", "reportType"],
+      "properties": {
+        "_id": { "type": "string" },
+        "reportTitle": { "type": "string" },
+        "reportType": { "type": "string" },
+        "generatedBy": { "type": "string" },
+        "filterParams": { "type": "object" },
+        "metrics": { "type": "object" },
+        "summaryNotes": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      }
+    }
+  }
+}
